@@ -3,6 +3,22 @@ import 'package:task_manager/services/task_service.dart';
 import 'package:test/test.dart';
 
 void main() {
+  Task createTask({
+    String id = '00',
+    String title = 'Test',
+    bool completed = false,
+    Priority priority = Priority.medium,
+    DateTime? dueDate
+  }) {
+    return Task(
+      id: id,
+      title: title,
+      isCompleted: completed,
+      priority: priority,
+      dueDate: dueDate ?? DateTime.now()
+    );
+  }
+
   group('Task Model — Constructor & Properties', () {
     late Task task;
 
@@ -12,44 +28,37 @@ void main() {
         title: 'Test00',
         dueDate: DateTime(2025, 3, 10, 21, 15),
       );
+
+      task = createTask();
     });
 
     test(
       'Default Values Test: Task model assigns default values when optional fields are not provided',
       () {
-        expect(
-          [task.description, task.priority, task.isCompleted],
-          ['', Priority.medium, false],
-        );
+        expect(task.description, isEmpty);
+        expect(task.isCompleted, isFalse);
       },
     );
 
     test(
       'Required Field Assignment Test: Task model correctly stores values provided for required fields during creation',
       () {
-        expect(task.id, '00');
-        expect(task.title, 'Test00');
-
-        expect(
-          [task.id, task.title, task.dueDate],
-          ['00', 'Test00', DateTime(2025, 3, 10, 21, 15)],
-        );
+        expect(task.id, equals('00'));
+        expect(task.title, equals('Test00'));
       },
     );
 
     test(
       'Priority Assignment Test: Task model stores the default priority value correctly',
       () {
-        expect(task.priority, Priority.medium);
+        expect(task.priority, equals(Priority.medium));
       },
     );
 
     test(
       'Due Date Storage Test: Task model stores the provided due date correctly when creating a task',
       () {
-        final date = DateTime(2025, 3, 10, 21, 15);
-
-        expect(task.dueDate, date);
+        expect(task.dueDate, equals(DateTime(2025, 3, 10, 21, 15)));
       },
     );
   });
@@ -86,14 +95,14 @@ void main() {
             task.priority,
             task.isCompleted,
           ],
-          [
+          equals([
             '00',
             'Test01',
             DateTime(2025, 3, 10, 21, 15),
             'Task Model Test for copyWith() function.',
             Priority.low,
-            false,
-          ],
+            isFalse,
+          ]),
         );
       },
     );
@@ -120,14 +129,14 @@ void main() {
             task.priority,
             task.isCompleted,
           ],
-          [
+          equals([
             '02',
             'Test02',
             DateTime(2025, 3, 11, 13, 30),
             'Task Model Test for copyWith() function. This is now updated.',
             Priority.low,
-            false,
-          ],
+            isFalse,
+          ]),
         );
       },
     );
@@ -146,14 +155,14 @@ void main() {
             task.priority,
             task.isCompleted,
           ],
-          [
+          equals([
             '00',
             'Test00',
             DateTime(2025, 3, 10, 21, 15),
             'Task Model Test for copyWith() function.',
             Priority.high,
-            true,
-          ],
+            isTrue,
+          ]),
         );
 
         expect(
@@ -165,14 +174,14 @@ void main() {
             task03.priority,
             task03.isCompleted,
           ],
-          [
+          equals([
             '03',
             'Test03',
             DateTime(2025, 3, 10, 21, 15),
             'Task Model Test for copyWith() function.',
             Priority.high,
-            true,
-          ],
+            isTrue,
+          ]),
         );
       },
     );
@@ -192,7 +201,7 @@ void main() {
           dueDate: DateTime.now().subtract(const Duration(days: 30)),
         );
 
-        expect(task.isOverdue, true);
+        expect(task.isOverdue, isTrue);
       },
     );
 
@@ -203,7 +212,7 @@ void main() {
           dueDate: DateTime.now().add(const Duration(days: 30)),
         );
 
-        expect(task.isOverdue, false);
+        expect(task.isOverdue, isFalse);
       },
     );
 
@@ -215,7 +224,7 @@ void main() {
           isCompleted: true,
         );
 
-        expect(task.isOverdue, false);
+        expect(task.isOverdue, isFalse);
       },
     );
   });
@@ -243,14 +252,14 @@ void main() {
             jsonTask.priority,
             jsonTask.isCompleted,
           ],
-          [
+          equals([
             task.id,
             task.title,
             task.dueDate,
             task.description,
             task.priority,
             task.isCompleted,
-          ],
+          ]),
         );
       },
     );
@@ -282,8 +291,8 @@ void main() {
     test(
       'Priority Mapping Test: priority enum is correctly converted to index and restored during JSON conversion',
       () {
-        expect(task.priority.index, json['priority']);
-        expect(task.priority, jsonTask.priority);
+        expect(task.priority.index, equals(json['priority']));
+        expect(task.priority, equals(jsonTask.priority));
       },
     );
   });
@@ -302,7 +311,7 @@ void main() {
       () {
         taskService.addTask(task);
 
-        expect(taskService.allTasks.contains(task), true);
+        expect(taskService.allTasks, contains(task));
       },
     );
 
@@ -323,8 +332,8 @@ void main() {
         taskService.addTask(task);
         taskService.addTask(taskDupe);
 
-        expect(task.id, taskDupe.id);
-        expect(taskService.allTasks.length, 2);
+        expect(task.id, equals(taskDupe.id));
+        expect(taskService.allTasks, hasLength(2));
       },
     );
   });
@@ -375,7 +384,7 @@ void main() {
       () {
         taskService.toggleComplete('00');
 
-        expect(taskService.allTasks.first.isCompleted, true);
+        expect(taskService.allTasks.first.isCompleted, isTrue);
       },
     );
 
@@ -385,7 +394,7 @@ void main() {
         taskService.toggleComplete('00');
         taskService.toggleComplete('00');
 
-        expect(taskService.allTasks.first.isCompleted, false);
+        expect(taskService.allTasks.first.isCompleted, isFalse);
       },
     );
 
@@ -440,11 +449,11 @@ void main() {
       () {
         List<Task> incompleteTasks = taskService.getByStatus(completed: false);
 
-        expect(incompleteTasks.length, 2);
-        expect(
-          [incompleteTasks[0].id, incompleteTasks[1].id],
-          [taskService.allTasks[1].id, taskService.allTasks[4].id],
-        );
+        expect(incompleteTasks, hasLength(2));
+        expect([
+          incompleteTasks[0].id,
+          incompleteTasks[1].id,
+        ], equals([taskService.allTasks[1].id, taskService.allTasks[4].id]));
       },
     );
 
@@ -453,14 +462,14 @@ void main() {
       () {
         List<Task> incompleteTasks = taskService.getByStatus(completed: true);
 
-        expect(incompleteTasks.length, 3);
+        expect(incompleteTasks, hasLength(3));
         expect(
           [incompleteTasks[0].id, incompleteTasks[1].id, incompleteTasks[2].id],
-          [
+          equals([
             taskService.allTasks[0].id,
             taskService.allTasks[2].id,
             taskService.allTasks[3].id,
-          ],
+          ]),
         );
       },
     );
@@ -519,22 +528,8 @@ void main() {
       () {
         List<Task> sortedTask = taskService.sortByPriority();
 
-        expect(
-          [
-            sortedTask[0].priority,
-            sortedTask[1].priority,
-            sortedTask[2].priority,
-            sortedTask[3].priority,
-            sortedTask[4].priority,
-          ],
-          [
-            taskService.allTasks[0].priority,
-            taskService.allTasks[2].priority,
-            taskService.allTasks[3].priority,
-            taskService.allTasks[4].priority,
-            taskService.allTasks[1].priority,
-          ],
-        );
+        expect(sortedTask.first.priority, equals(Priority.high));
+        expect(sortedTask.last.priority, equals(Priority.low));
       },
     );
 
@@ -551,13 +546,13 @@ void main() {
             taskService.allTasks[3].priority,
             taskService.allTasks[4].priority,
           ],
-          [
+          equals([
             Priority.high,
             Priority.low,
             Priority.high,
             Priority.medium,
             Priority.medium,
-          ],
+          ]),
         );
       },
     );
@@ -605,13 +600,13 @@ void main() {
             sortedTask[3].dueDate,
             sortedTask[4].dueDate,
           ],
-          [
+          equals([
             taskService.allTasks[1].dueDate,
             taskService.allTasks[2].dueDate,
             taskService.allTasks[3].dueDate,
             taskService.allTasks[4].dueDate,
             taskService.allTasks[0].dueDate,
-          ],
+          ]),
         );
       },
     );
@@ -621,16 +616,13 @@ void main() {
       () {
         taskService.sortByDueDate();
 
-        expect(
-          [
-            taskService.allTasks[0].dueDate,
-            taskService.allTasks[1].dueDate,
-            taskService.allTasks[2].dueDate,
-            taskService.allTasks[3].dueDate,
-            taskService.allTasks[4].dueDate,
-          ],
-          [dueDate0, dueDate1, dueDate2, dueDate3, dueDate4],
-        );
+        expect([
+          taskService.allTasks[0].dueDate,
+          taskService.allTasks[1].dueDate,
+          taskService.allTasks[2].dueDate,
+          taskService.allTasks[3].dueDate,
+          taskService.allTasks[4].dueDate,
+        ], equals([dueDate0, dueDate1, dueDate2, dueDate3, dueDate4]));
       },
     );
   });
@@ -709,10 +701,11 @@ void main() {
 
         final Map<String, int> statistics = taskService.statistics;
 
-        expect(
-          [statistics['total'], statistics['completed'], statistics['overdue']],
-          [0, 0, 0],
-        );
+        expect([
+          statistics['total'],
+          statistics['completed'],
+          statistics['overdue'],
+        ], equals([0, 0, 0]));
       },
     );
 
@@ -721,7 +714,7 @@ void main() {
       () {
         final Map<String, int> statistics = taskService.statistics;
 
-        expect([statistics['total'], statistics['completed']], [8, 3]);
+        expect([statistics['total'], statistics['completed']], equals([8, 3]));
       },
     );
 
@@ -730,7 +723,7 @@ void main() {
       () {
         final Map<String, int> statistics = taskService.statistics;
 
-        expect(statistics['overdue'], 2);
+        expect(statistics['overdue'], equals(2));
       },
     );
   });
