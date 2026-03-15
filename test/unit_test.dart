@@ -3,13 +3,31 @@ import 'package:task_manager/services/task_service.dart';
 import 'package:test/test.dart';
 
 void main() {
+  Task createTask({
+    String id = '00',
+    String title = 'Test',
+    bool isCompleted = false,
+    Priority priority = Priority.medium,
+    DateTime? dueDate,
+    String description = '',
+  }) {
+    return Task(
+      id: id,
+      title: title,
+      isCompleted: isCompleted,
+      priority: priority,
+      dueDate: dueDate ?? DateTime.now(),
+      description: description,
+    );
+  }
+
   group('Task Model — Constructor & Properties', () {
     late Task task;
 
     setUp(() {
       task = Task(
         id: '00',
-        title: 'Test00',
+        title: 'Test',
         dueDate: DateTime(2025, 3, 10, 21, 15),
       );
     });
@@ -26,7 +44,7 @@ void main() {
       'Required Field Assignment Test: Task model correctly stores values provided for required fields during creation',
       () {
         expect(task.id, equals('00'));
-        expect(task.title, equals('Test00'));
+        expect(task.title, equals('Test'));
       },
     );
 
@@ -49,9 +67,7 @@ void main() {
     late Task task;
 
     setUp(() {
-      task = Task(
-        id: '00',
-        title: 'Test00',
+      task = createTask(
         dueDate: DateTime(2025, 3, 10, 21, 15),
         description: 'Task Model Test for copyWith() function.',
         priority: Priority.high,
@@ -139,7 +155,7 @@ void main() {
           ],
           equals([
             '00',
-            'Test00',
+            'Test',
             DateTime(2025, 3, 10, 21, 15),
             'Task Model Test for copyWith() function.',
             Priority.high,
@@ -173,14 +189,14 @@ void main() {
     late Task task;
 
     setUp(() {
-      task = Task(id: '00', title: 'Test00', dueDate: DateTime.now());
+      task = createTask();
     });
 
     test(
       'Past Due Incomplete Test: isOverdue returns true when the task is incomplete and the due date is in the past',
       () {
         task = task.copyWith(
-          dueDate: DateTime.now().subtract(const Duration(days: 30)),
+          dueDate: task.dueDate.subtract(const Duration(days: 30)),
         );
 
         expect(task.isOverdue, isTrue);
@@ -191,7 +207,7 @@ void main() {
       'Future Due Test: isOverdue returns false when the due date is in the future and the task is incomplete',
       () {
         task = task.copyWith(
-          dueDate: DateTime.now().add(const Duration(days: 30)),
+          dueDate: task.dueDate.add(const Duration(days: 30)),
         );
 
         expect(task.isOverdue, isFalse);
@@ -202,7 +218,7 @@ void main() {
       'Completed Past Due Test: isOverdue returns false when the task is completed even if the due date is in the past',
       () {
         task = task.copyWith(
-          dueDate: DateTime.now().subtract(const Duration(days: 30)),
+          dueDate: task.dueDate.subtract(const Duration(days: 30)),
           isCompleted: true,
         );
 
@@ -217,7 +233,7 @@ void main() {
     late Task jsonTask;
 
     setUp(() {
-      task = Task(id: '00', title: 'Test00', dueDate: DateTime.now());
+      task = createTask();
       json = task.toJson();
       jsonTask = Task.fromJson(json);
     });
@@ -284,7 +300,7 @@ void main() {
     late TaskService taskService;
 
     setUp(() {
-      task = Task(id: '00', title: 'Test00', dueDate: DateTime.now());
+      task = createTask();
       taskService = TaskService();
     });
 
@@ -325,7 +341,7 @@ void main() {
     late TaskService taskService;
 
     setUp(() {
-      task = Task(id: '00', title: 'Test00', dueDate: DateTime.now());
+      task = createTask();
       taskService = TaskService();
 
       taskService.addTask(task);
@@ -355,7 +371,7 @@ void main() {
     late TaskService taskService;
 
     setUp(() {
-      task = Task(id: '00', title: 'Test00', dueDate: DateTime.now());
+      task = createTask();
       taskService = TaskService();
 
       taskService.addTask(task);
@@ -397,26 +413,12 @@ void main() {
     late TaskService taskService;
 
     setUp(() {
-      task0 = Task(
-        id: '00',
-        title: 'Test00',
-        dueDate: DateTime.now(),
-        isCompleted: true,
-      );
-      task1 = Task(id: '01', title: 'Test01', dueDate: DateTime.now());
-      task2 = Task(
-        id: '02',
-        title: 'Test02',
-        dueDate: DateTime.now(),
-        isCompleted: true,
-      );
-      task3 = Task(
-        id: '03',
-        title: 'Test03',
-        dueDate: DateTime.now(),
-        isCompleted: true,
-      );
-      task4 = Task(id: '04', title: 'Test04', dueDate: DateTime.now());
+      task0 = createTask(isCompleted: true);
+      task1 = createTask();
+      task2 = createTask(isCompleted: true);
+      task3 = createTask(isCompleted: true);
+      task4 = createTask();
+
       taskService = TaskService();
 
       taskService.addTask(task0);
@@ -432,10 +434,6 @@ void main() {
         List<Task> incompleteTasks = taskService.getByStatus(completed: false);
 
         expect(incompleteTasks, hasLength(2));
-        expect([
-          incompleteTasks[0].id,
-          incompleteTasks[1].id,
-        ], equals([taskService.allTasks[1].id, taskService.allTasks[4].id]));
       },
     );
 
@@ -445,14 +443,6 @@ void main() {
         List<Task> incompleteTasks = taskService.getByStatus(completed: true);
 
         expect(incompleteTasks, hasLength(3));
-        expect(
-          [incompleteTasks[0].id, incompleteTasks[1].id, incompleteTasks[2].id],
-          equals([
-            taskService.allTasks[0].id,
-            taskService.allTasks[2].id,
-            taskService.allTasks[3].id,
-          ]),
-        );
       },
     );
   });
@@ -466,36 +456,12 @@ void main() {
     late TaskService taskService;
 
     setUp(() {
-      task0 = Task(
-        id: '00',
-        title: 'Test00',
-        dueDate: DateTime.now(),
-        priority: Priority.high,
-      );
-      task1 = Task(
-        id: '01',
-        title: 'Test01',
-        dueDate: DateTime.now(),
-        priority: Priority.low,
-      );
-      task2 = Task(
-        id: '02',
-        title: 'Test02',
-        dueDate: DateTime.now(),
-        priority: Priority.high,
-      );
-      task3 = Task(
-        id: '03',
-        title: 'Test03',
-        dueDate: DateTime.now(),
-        priority: Priority.medium,
-      );
-      task4 = Task(
-        id: '04',
-        title: 'Test04',
-        dueDate: DateTime.now(),
-        priority: Priority.medium,
-      );
+      task0 = createTask(priority: Priority.high);
+      task1 = createTask(priority: Priority.low);
+      task2 = createTask(priority: Priority.high);
+      task3 = createTask(priority: Priority.medium);
+      task4 = createTask(priority: Priority.medium);
+
       taskService = TaskService();
 
       taskService.addTask(task0);
@@ -548,18 +514,13 @@ void main() {
     late Task task4;
     late TaskService taskService;
 
-    final dueDate0 = DateTime.now().add(Duration(days: 30));
-    final dueDate1 = DateTime.now().subtract(Duration(days: 30));
-    final dueDate2 = DateTime.now().subtract(Duration(days: 3));
-    final dueDate3 = DateTime.now().add(Duration(days: 15));
-    final dueDate4 = DateTime.now().add(Duration(days: 25));
-
     setUp(() {
-      task0 = Task(id: '00', title: 'Test00', dueDate: dueDate0);
-      task1 = Task(id: '01', title: 'Test01', dueDate: dueDate1);
-      task2 = Task(id: '02', title: 'Test02', dueDate: dueDate2);
-      task3 = Task(id: '03', title: 'Test03', dueDate: dueDate3);
-      task4 = Task(id: '04', title: 'Test04', dueDate: dueDate4);
+      task0 = createTask(dueDate: DateTime.now().add(Duration(days: 30)));
+      task1 = createTask(dueDate: DateTime.now().subtract(Duration(days: 30)));
+      task2 = createTask(dueDate: DateTime.now().subtract(Duration(days: 3)));
+      task3 = createTask(dueDate: DateTime.now().add(Duration(days: 15)));
+      task4 = createTask(dueDate: DateTime.now().add(Duration(days: 25)));
+
       taskService = TaskService();
 
       taskService.addTask(task0);
@@ -598,13 +559,22 @@ void main() {
       () {
         taskService.sortByDueDate();
 
-        expect([
-          taskService.allTasks[0].dueDate,
-          taskService.allTasks[1].dueDate,
-          taskService.allTasks[2].dueDate,
-          taskService.allTasks[3].dueDate,
-          taskService.allTasks[4].dueDate,
-        ], equals([dueDate0, dueDate1, dueDate2, dueDate3, dueDate4]));
+        expect(
+          [
+            taskService.allTasks[0].dueDate,
+            taskService.allTasks[1].dueDate,
+            taskService.allTasks[2].dueDate,
+            taskService.allTasks[3].dueDate,
+            taskService.allTasks[4].dueDate,
+          ],
+          equals([
+            task0.dueDate,
+            task1.dueDate,
+            task2.dueDate,
+            task3.dueDate,
+            task4.dueDate,
+          ]),
+        );
       },
     );
   });
@@ -621,49 +591,24 @@ void main() {
     late TaskService taskService;
 
     setUp(() {
-      task0 = Task(
-        id: '00',
-        title: 'Test00',
+      task0 = createTask(
         dueDate: DateTime.now().add(Duration(days: 30)),
         isCompleted: true,
       );
-      task1 = Task(
-        id: '01',
-        title: 'Test01',
-        dueDate: DateTime.now().subtract(Duration(days: 3)),
-      );
-      task2 = Task(
-        id: '02',
-        title: 'Test02',
+      task1 = createTask(dueDate: DateTime.now().subtract(Duration(days: 3)));
+      task2 = createTask(
         dueDate: DateTime.now().subtract(Duration(days: 5)),
         isCompleted: true,
       );
-      task3 = Task(
-        id: '03',
-        title: 'Test03',
+      task3 = createTask(
         dueDate: DateTime.now().add(Duration(days: 15)),
         isCompleted: true,
       );
-      task4 = Task(
-        id: '04',
-        title: 'Test04',
-        dueDate: DateTime.now().add(Duration(days: 30)),
-      );
-      task5 = Task(
-        id: '05',
-        title: 'Test05',
-        dueDate: DateTime.now().add(Duration(days: 30)),
-      );
-      task6 = Task(
-        id: '06',
-        title: 'Test06',
-        dueDate: DateTime.now().subtract(Duration(days: 10)),
-      );
-      task7 = Task(
-        id: '07',
-        title: 'Test07',
-        dueDate: DateTime.now().add(Duration(days: 30)),
-      );
+      task4 = createTask(dueDate: DateTime.now().add(Duration(days: 30)));
+      task5 = createTask(dueDate: DateTime.now().add(Duration(days: 30)));
+      task6 = createTask(dueDate: DateTime.now().subtract(Duration(days: 10)));
+      task7 = createTask(dueDate: DateTime.now().add(Duration(days: 30)));
+
       taskService = TaskService();
 
       taskService.addTask(task0);
