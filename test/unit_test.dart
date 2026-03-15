@@ -3,22 +3,6 @@ import 'package:task_manager/services/task_service.dart';
 import 'package:test/test.dart';
 
 void main() {
-  Task createTask({
-    String id = '00',
-    String title = 'Test',
-    bool completed = false,
-    Priority priority = Priority.medium,
-    DateTime? dueDate
-  }) {
-    return Task(
-      id: id,
-      title: title,
-      isCompleted: completed,
-      priority: priority,
-      dueDate: dueDate ?? DateTime.now()
-    );
-  }
-
   group('Task Model — Constructor & Properties', () {
     late Task task;
 
@@ -28,8 +12,6 @@ void main() {
         title: 'Test00',
         dueDate: DateTime(2025, 3, 10, 21, 15),
       );
-
-      task = createTask();
     });
 
     test(
