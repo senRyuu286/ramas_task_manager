@@ -36,16 +36,20 @@ android {
     }
 
     signingConfigs {
-        create("release") {
-            keyAlias = keystoreProperties.getProperty("keyAlias") ?: System.getenv("KEY_ALIAS")
-            keyPassword = keystoreProperties.getProperty("keyPassword") ?: System.getenv("KEY_PASSWORD")
-            
-            val stFile = keystoreProperties.getProperty("storeFile")
-            storeFile = if (stFile != null) file(stFile) else file(System.getenv("KEYSTORE_PATH") ?: "debug.keystore")
-            
-            storePassword = keystoreProperties.getProperty("storePassword") ?: System.getenv("STORE_PASSWORD")
+    create("release") {
+        keyAlias = keystoreProperties.getProperty("keyAlias") ?: System.getenv("KEY_ALIAS")
+        keyPassword = keystoreProperties.getProperty("keyPassword") ?: System.getenv("KEY_PASSWORD")
+        
+        val stFile = keystoreProperties.getProperty("storeFile")
+        storeFile = if (stFile != null) {
+            rootProject.file(stFile) 
+        } else {
+            file(System.getenv("KEYSTORE_PATH") ?: "keystore.jks")
         }
+        
+        storePassword = keystoreProperties.getProperty("storePassword") ?: System.getenv("STORE_PASSWORD")
     }
+}
 
     buildTypes {
         getByName("release") {
