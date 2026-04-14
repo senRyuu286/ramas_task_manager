@@ -42,7 +42,7 @@ android {
         
         val stFile = keystoreProperties.getProperty("storeFile") ?: System.getenv("KEYSTORE_PATH")
             if (stFile != null) {
-                storeFile = rootProject.file(stFile)
+                storeFile = file(stFile)
             }
         
         storePassword = keystoreProperties.getProperty("storePassword") ?: System.getenv("STORE_PASSWORD")
