@@ -27,7 +27,7 @@ class TaskProvider extends ChangeNotifier {
         base = _service.getByStatus(completed: true);
         break;
       case FilterStatus.all:
-      base = List<Task>.from(_service.allTasks);
+        base = List<Task>.from(_service.allTasks);
     }
     return _sortMode == SortMode.priority
         ? _sortedByPriority(base)
