@@ -40,12 +40,10 @@ android {
         keyAlias = keystoreProperties.getProperty("keyAlias") ?: System.getenv("KEY_ALIAS")
         keyPassword = keystoreProperties.getProperty("keyPassword") ?: System.getenv("KEY_PASSWORD")
         
-        val stFile = keystoreProperties.getProperty("storeFile")
-        storeFile = if (stFile != null) {
-            rootProject.file(stFile) 
-        } else {
-            file(System.getenv("KEYSTORE_PATH") ?: "keystore.jks")
-        }
+        val stFile = keystoreProperties.getProperty("storeFile") ?: System.getenv("KEYSTORE_PATH")
+            if (stFile != null) {
+                storeFile = rootProject.file(stFile)
+            }
         
         storePassword = keystoreProperties.getProperty("storePassword") ?: System.getenv("STORE_PASSWORD")
     }
