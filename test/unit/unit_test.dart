@@ -196,7 +196,7 @@ void main() {
       'Past Due Incomplete Test: isOverdue returns true when the task is incomplete and the due date is in the past',
       () {
         task = task.copyWith(
-          dueDate: task.dueDate.subtract(const Duration(days: 30)),
+          dueDate: task.dueDate.subtract( Duration(days: 30)),
         );
 
         expect(task.isOverdue, isTrue);
@@ -207,7 +207,7 @@ void main() {
       'Future Due Test: isOverdue returns false when the due date is in the future and the task is incomplete',
       () {
         task = task.copyWith(
-          dueDate: task.dueDate.add(const Duration(days: 30)),
+          dueDate: task.dueDate.add( Duration(days: 30)),
         );
 
         expect(task.isOverdue, isFalse);
@@ -218,7 +218,7 @@ void main() {
       'Completed Past Due Test: isOverdue returns false when the task is completed even if the due date is in the past',
       () {
         task = task.copyWith(
-          dueDate: task.dueDate.subtract(const Duration(days: 30)),
+          dueDate: task.dueDate.subtract( Duration(days: 30)),
           isCompleted: true,
         );
 
